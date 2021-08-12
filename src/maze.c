@@ -153,7 +153,35 @@ QUEUE *insert(QUEUE *queue, MAP_NODE map, TREE *node){
 	parameters: the head of the priority queue, and the node to be deleted
 	returns: the head of the priority queue
 */
-QUEUE *delete(QUEUE *queue, QUEUE *node){}
+QUEUE *delete(QUEUE *queue, QUEUE *node){
+	QUEUE *insert = queue;
+	QUEUE *temp = queue;
+	int dist = node->map_node.distance;
+
+	if (queue == NULL || node == NULL)
+	{
+		return queue;
+	}
+	else if (queue == node)
+	{
+		queue = queue->next;
+		free(node);
+		node = NULL;
+	}
+	else
+	{
+		//find and remove node from list
+		while (temp->next != NULL && temp->next != node)
+			temp = temp->next;
+
+		temp->next = node->next;
+
+		free(node);
+		node = NULL;
+	}
+
+	return queue;
+}
 
 /*
 	function: this is a function that adds a pair of coordinates to a stack.
