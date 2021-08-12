@@ -238,7 +238,36 @@ int *pop(STACK **stack){
 	parameters: the queue, a map node, a tree node
 	returns: the queue of the order which to visit the nodes
 */
-QUEUE *enqueue(QUEUE *queue, MAP_NODE map_node, TREE *tree_node){}
+QUEUE *enqueue(QUEUE *queue, MAP_NODE map_node, TREE *tree_node){
+	QUEUE *new_node = (QUEUE *)malloc(sizeof(QUEUE));
+	QUEUE *temp = NULL;
+
+	if (new_node == NULL)
+	{
+		printf("Error allocating memory\n");
+	}
+
+	new_node->next = NULL;
+	new_node->map_node = map_node;
+	new_node->tree_node = tree_node;
+
+	temp = queue;
+
+	if (queue == NULL)
+	{
+		queue = new_node;
+	}
+	else
+	{
+		while (temp->next != NULL)
+		{
+			temp = temp->next;
+		}
+		temp->next = new_node;
+	}
+
+	return queue;
+}
 
 /*
 	function: this is a function that dequeues for a queue implementation
