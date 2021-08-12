@@ -397,7 +397,22 @@ void create_map(FILE *graph, int row, int col, MAP_NODE map[row][col], int creat
 	function: this is a function that prints the 2d array for the map
 	parameters: map of characters, size of map row, size of map column
 */
-void print_map(int row, int col, MAP_NODE map[row][col]){}
+void print_map(int row, int col, MAP_NODE map[row][col]){
+	printf(" ");
+	for (int i = 0; i < col; i++){
+		printf("%d", i);
+	}
+
+	printf("\n");
+
+	for (int i = 0; i < row; i++){
+		printf("%d", i);
+		for (int k = 0; k < col; k++){
+			printf("%c", map[i][k].cell);
+		}
+		printf("\n");
+	}
+}
 
 /*
 	function: this is a function that moves a piece on the board
