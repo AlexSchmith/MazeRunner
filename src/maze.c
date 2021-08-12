@@ -274,7 +274,16 @@ QUEUE *enqueue(QUEUE *queue, MAP_NODE map_node, TREE *tree_node){
 	parameters: a pointer to the queue
 	returns: returns the queue value at the front and the new queue through indirect referencing
 */
-QUEUE dequeue(QUEUE **queue){}
+QUEUE dequeue(QUEUE **queue){
+	QUEUE *temp_q = *queue;
+	QUEUE ret_val = **queue;
+
+	*queue = (*queue)->next;
+	free(temp_q);
+	temp_q = NULL;
+
+	return ret_val;
+}
 
 
 // Game Functions
