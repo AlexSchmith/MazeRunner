@@ -293,7 +293,105 @@ QUEUE dequeue(QUEUE **queue){
 	parameters: the file for the map, a double array for the positions of all creatures, the position for the player, the position of the end, and the number of creatures
 	returns: returns the game map, and through indirect referencing returns the positions for the player, the creatures, and the end
 */
-void create_map(FILE *graph, int row, int col, MAP_NODE map[row][col], int creatures[MAX_CREATURES][2], int player[], int end[], int *num_creatures){}
+void create_map(FILE *graph, int row, int col, MAP_NODE map[row][col], int creatures[MAX_CREATURES][2], int player[], int end[], int *num_creatures){
+	*num_creatures = 0;
+	STACK *path = NULL;
+	STACK *temp;
+	QUEUE *queue = NULL;
+	QUEUE *temp_q;
+	TREE *filler = NULL;
+	char cell;
+	int index = 0;
+	int is_on_path, is_on_path_u, is_on_path_d, is_on_path_l, is_on_path_r;
+	int weight = 1;
+
+	//create each map node
+	for (int i = 0; i < row; i++)
+	{
+		for (int k = 0; k < col; k++)
+		{
+			map[i][k].cell = '\0';
+			fscanf(graph, "%c", &cell);
+
+			map[i][k].cell = cell;
+			map[i][k].label = 'u';
+			map[i][k].dist_lab = 'n';
+			map[i][k].pos[0] = i;
+			map[i][k].pos[1] = k;
+			map[i][k].replacement = ' ';
+			map[i][k].distance = INFINITE;
+
+			if (i == 0 || k == 0 || i == row - 1 || k == col - 1)
+				weight = -1;
+			else
+				weight = 1;
+
+			map[i][k].weight_u = weight;
+			map[i][k].weight_d = weight;
+			map[i][k].weight_l = weight;
+			map[i][k].weight_r = weight;
+
+			//set positions for player, end, and creatures
+			if (map[i][k].cell == '0')
+			{
+				player[0] = i;
+				player[1] = k;
+			}
+			else if (map[i][k].cell == '*')
+			{
+				end[0] = i;
+				end[1] = k;
+			}
+			else if (map[i][k].cell == '#')
+			{
+				map[i][k].distance = -1;
+			}
+			else if (isalpha(map[i][k].cell) && isupper(map[i][k].cell))
+			{
+				index = 0;
+
+				if (*num_creatures != 0)
+				{
+					while (index < *num_creatures && cell > map[creatures[index][0]][creatures[index][1]].cell)
+					{
+						index++;
+					}
+				}
+				if (*num_creatures >= MAX_CREATURES)
+					continue;
+
+				for (int i = *num_creatures; i >= index; i--)
+				{
+					creatures[i][0] = creatures[i - 1][0];
+					creatures[i][1] = creatures[i - 1][1];
+				}
+
+				creatures[index][0] = i;
+				creatures[index][1] = k;
+				(*num_creatures)++;
+			}
+		}
+		fscanf(graph, "\n");
+	}
+
+	//set boundaries for the graph
+	for (int i = 0; i < row; i++)
+	{
+		for (int k = 0; k < col; k++)
+		{
+			if (i == 0 || map[i - 1][k].cell == '#')
+				map[i][k].weight_u = -1;
+			if (i == row - 1 || map[i + 1][k].cell == '#')
+				map[i][k].weight_d = -1;
+			if (k == 0 || map[i][k - 1].cell == '#')
+				map[i][k].weight_l = -1;
+			if (k == col - 1 || map[i][k + 1].cell == '#')
+				map[i][k].weight_r = -1;
+		}
+	}
+
+	fclose(graph);
+}
 
 /*
 	function: this is a function that prints the 2d array for the map
