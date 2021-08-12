@@ -548,8 +548,8 @@ RESULT round(int row, int col, MAP_NODE map[row][col], int end[], int creatures[
 	returns: the directions the object needs to follow for the shortest path in char format (u, d, l, r)
 */
 STACK* shortest_path(int row, int col, MAP_NODE map[row][col], int object[], char target){
-	int x = p[0]; //shortcuts for making indexes easier to understand
-	int y = p[1]; //shortcuts for making indexes easier to understand
+	int x = object[0]; //shortcuts for making indexes easier to understand
+	int y = object[1]; //shortcuts for making indexes easier to understand
 	int move[2];  //position of objects first move
 	char choice;
 	QUEUE *queue = NULL; //head of queue for breadth first search
