@@ -647,7 +647,82 @@ STACK* shortest_path(int row, int col, MAP_NODE map[row][col], int object[], cha
 	returns: the map
 
 */
-void set_weights(int row, int col, MAP_NODE map[row][col], int player[]){}
+void set_weights(int row, int col, MAP_NODE map[row][col], int player[]){
+	STACK *path = NULL;
+	STACK *temp = NULL;
+	int is_on_path, is_on_path_u, is_on_path_d, is_on_path_l, is_on_path_r;
+	path = shortest_path(row, col, map, player, '*');
+
+	//set the specific weights for the graph
+	for (int i = 0; i < row; i++){
+		for (int k = 0; k < col; k++){
+			is_on_path = 0;
+			is_on_path_u = 0;
+			is_on_path_d = 0;
+			is_on_path_l = 0;
+			is_on_path_r = 0;
+
+			temp = path;
+
+			while (temp != NULL){
+				if (temp->pos[0] == i && temp->pos[1] == k)
+					is_on_path = 1;
+				if (temp->pos[0] == i - 1 && temp->pos[1] == k)
+					is_on_path_u = 1;
+				if (temp->pos[0] == i + 1 && temp->pos[1] == k)
+					is_on_path_d = 1;
+				if (temp->pos[0] == i && temp->pos[1] == k - 1)
+					is_on_path_l = 1;
+				if (temp->pos[0] == i && temp->pos[1] == k + 1)
+					is_on_path_r = 1;
+
+				temp = temp->next;
+			}
+
+			//check up
+			if (map[i][k].weight_u != -1){
+				if (is_on_path && is_on_path_u)
+					map[i][k].weight_u = 1;
+				else if (is_on_path || is_on_path_u)
+					map[i][k].weight_u = 2;
+				else
+					map[i][k].weight_u = 3;
+			}
+
+			//check down
+			if (map[i][k].weight_d != -1){
+				if (is_on_path && is_on_path_d)
+					map[i][k].weight_d = 1;
+				else if (is_on_path || is_on_path_d)
+					map[i][k].weight_d = 2;
+				else
+					map[i][k].weight_d = 3;
+			}
+
+			//check left
+			if (map[i][k].weight_l != -1){
+				if (is_on_path && is_on_path_l)
+					map[i][k].weight_l = 1;
+				else if (is_on_path || is_on_path_l)
+					map[i][k].weight_l = 2;
+				else
+					map[i][k].weight_l = 3;
+			}
+
+			//check right
+			if (map[i][k].weight_r != -1){
+				if (is_on_path && is_on_path_r)
+					map[i][k].weight_r = 1;
+				else if (is_on_path || is_on_path_r)
+					map[i][k].weight_r = 2;
+				else
+					map[i][k].weight_r = 3;
+			}
+		}
+	}
+
+	return path;
+}
 
 /*
 	function: this is a function that finds the shortest path by using dijkstra's algorithm which is similar to the breadth first search algorithm except the way the priority queue is organized
