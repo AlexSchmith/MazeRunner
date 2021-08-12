@@ -502,7 +502,44 @@ RESULT move(int row, int col, MAP_NODE map[row][col], int position[], int creatu
 	parameters: map of characters, size of map row, size of map column
 	returns: returns an array of graph nodes that contain the player, the creature, and the end
 */
-RESULT round(int row, int col, MAP_NODE map[row][col], int end[], int creatures[MAX_CREATURES][2], int player[], int num_creatures){}
+RESULT round(int row, int col, MAP_NODE map[row][col], int end[], int creatures[MAX_CREATURES][2], int player[], int num_creatures){
+	char choice;
+	RESULT is_end;
+
+	print_map(row, col, map);
+	printf("Player %c, please enter your move [u(p), d(own), l(eft), or r(ight)]: ", map[play_pos[0]][play_pos[1]].cell);
+	scanf(" %c", &choice);
+
+	while (choice != 'u' && choice != 'd' && choice != 'l' && choice != 'r'){
+		printf("Please choose either (u, d, l, or r)\n");
+		printf("Player %c, please enter your move [u(p), d(own), l(eft), or r(ight)]: ", map[play_pos[0]][play_pos[1]].cell);
+		scanf(" %c", &choice);
+	}
+
+	//let player move
+	is_end = move(row, col, map, play_pos, creatures, end, choice, num_creatures);
+	print_map(row, col, map);
+	if (is_end == PL_WON || is_end == PL_LOST)
+		return is_end;
+
+	set_weights(row, col, map, play_pos);
+
+	//let creatures move in alphabetical order
+	for (int i = 0; i < num_creatures; i++){
+
+		choice = shortest_path_dij(row, col, map, creatures[i], play_pos, '0');
+
+		//choice = shortest_path(row, col, map, creatures[i], '0');
+		is_end = move(row, col, map, creatures[i], creatures, end, choice, num_creatures);
+
+		if (is_end == PL_LOST){
+			print_map(row, col, map);
+			return is_end;
+		}
+	}
+
+	return is_end;
+}
 
 /*
 	function: this is a function that uses breadth first search to find the shortest path from position to node with target. it works by putting items into a queue based on their level.
