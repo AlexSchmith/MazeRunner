@@ -78,6 +78,7 @@ RESULT move(int row, int col, MAP_NODE map[row][col], int position[], int creatu
 RESULT round(int row, int col, MAP_NODE map[row][col], int end[], int creatures[MAX_CREATURES][2], int play_pos[], int num_creatures);
 STACK* shortest_path(int row, int col, MAP_NODE map[row][col], int start_pos[], char target);
 void set_weights(int row, int col, MAP_NODE map[row][col], int player[]);
+char dijkstra_path(int row, int col, MAP_NODE map[row][col], int p[], int player[], char target);
 
 int main(int argc, char *argv[]){
 	int player[2];
@@ -106,7 +107,6 @@ int main(int argc, char *argv[]){
 	}
 	return 0;
 }
-
 
 //Data Structure Functions
 
@@ -729,31 +729,211 @@ void set_weights(int row, int col, MAP_NODE map[row][col], int player[]){
 	parameters: size of map row, size of map column, map, position of starting object, target
 	return: returns the char of choice for the creature
 */
-char dijkstra_path(int row, int col, MAP_NODE map[row][col], int object[], char target){}
+char dijkstra_path(int row, int col, MAP_NODE map[row][col], int p[], int player[], char target){
+	QUEUE *u = (QUEUE *)malloc(sizeof(QUEUE)); //new vertex from cloud
+	QUEUE *verticies = NULL;				   //queue of verticies that still need to be checked for distance
+	QUEUE *temp = NULL;						   //search for priority queue
+	TREE *temp_t = NULL;
+	STACK *path = NULL;
+	STACK *temp_s = NULL;
 
- 
+	char choice;
+	int move[2];
+	int in_queue; //boolean that determines if node is in queue
+	int x = p[0];
+	int y = p[1];
+	int x1 = x;
+	int y1 = y;
 
+	//insert all nodes that aren't # into the priority queue
+	for (int i = 1; i < row; i++){
+		for (int k = 1; k < col; k++){
 
+			if (map[i][k].cell != '#'){
+				TREE *tree_node = (TREE *)malloc(sizeof(TREE));
+				tree_node->map_node = map[i][k];
+				tree_node->parent = NULL;
 
+				if (i == x && k == y)
+					map[i][k].distance = 0;
+				else
+					map[i][k].distance = INFINITE;
+				verticies = insert(verticies, map[i][k], tree_node);
+			}
+		}
+	}
 
+	while (verticies != NULL){
+		*u = dequeue(&verticies);
+		x = u->map_node.pos[0];
+		y = u->map_node.pos[1];
+		x1 = x;
+		y1 = y;
 
+		if (u->map_node.cell == target){
+			temp = u;
+			temp_t = temp->tree_node;
 
+			while (temp_t != NULL){
+				path = push(path, temp_t->map_node.pos[0], temp_t->map_node.pos[1]);
+				temp_t = temp_t->parent;
+			}
 
+			move[0] = path->next->pos[0];
+			move[1] = path->next->pos[1];
+			x = p[0];
+			y = p[1];
 
+			//get direction for next move
+			if (x == move[0]){
+				if (p[1] > move[1])
+					choice = 'l';
+				else if (p[1] < move[1])
+					choice = 'r';
+			}
+			else {
+				if (x < move[0])
+					choice = 'd';
+				else if (x > move[0])
+					choice = 'u';
+			}
 
+			printf("Creature %c: %c %d ", map[p[0]][p[1]].cell, choice, u->map_node.distance);
+			temp_s = path;
 
+			while (temp_s != NULL){
+				printf("(%d, %d) ", temp_s->pos[0], temp_s->pos[1]);
+				temp_s = temp_s->next;
+			}
+			printf("\n");
 
+			break;
+		}
 
+		if (u->map_node.weight_u != -1 && !isupper(map[x - 1][y].cell)){
+			//check to make sure node is in queue
+			in_queue = 0;
+			x1 = x;
+			y1 = y;
+			x1--;
+			temp = verticies;
+			while (temp != NULL){
+				if (temp->map_node.pos[0] == x1 && temp->map_node.pos[1] == y1){
+					in_queue = 1;
+					break;
+				}
+				temp = temp->next;
+			}
 
+			if (in_queue){
+				//perform edge relaxation
+				if (u->map_node.distance + u->map_node.weight_u < map[x1][y1].distance){
+					map[x1][y1].distance = u->map_node.distance + u->map_node.weight_u;
 
+					TREE *child = (TREE *)malloc(sizeof(TREE));
+					child->parent = u->tree_node;
+					child->map_node = map[x1][y1];
+					verticies = delete (verticies, temp);
+					verticies = insert(verticies, child->map_node, child);
+				}
+			}
+		}
+		if (u->map_node.weight_d != -1 && !isupper(map[x + 1][y].cell)){
+			//check to make sure node is in queue
+			in_queue = 0;
+			x1 = x;
+			y1 = y;
+			x1++;
+			temp = verticies;
 
+			while (temp != NULL){
+				if (temp->map_node.pos[0] == x1 && temp->map_node.pos[1] == y1){
+					in_queue = 1;
+					break;
+				}
+				temp = temp->next;
+			}
 
+			if (in_queue){
+				//perform edge relaxation
+				if (u->map_node.distance + u->map_node.weight_d < map[x1][y1].distance){
+					map[x1][y1].distance = u->map_node.distance + u->map_node.weight_d;
 
+					TREE *child = (TREE *)malloc(sizeof(TREE));
+					child->parent = u->tree_node;
+					child->map_node = map[x1][y1];
+					verticies = delete (verticies, temp);
+					verticies = insert(verticies, child->map_node, child);
+				}
+			}
+		}
+		if (u->map_node.weight_l != -1 && !isupper(map[x][y - 1].cell)){
+			//check to make sure node is in queue
+			in_queue = 0;
+			x1 = x;
+			y1 = y;
+			y1--;
+			temp = verticies;
 
+			while (temp != NULL){
+				if (temp->map_node.pos[0] == x1 && temp->map_node.pos[1] == y1){
+					in_queue = 1;
+					break;
+				}
+				temp = temp->next;
+			}
 
+			if (in_queue){
+				//perform edge relaxation
+				if (u->map_node.distance + u->map_node.weight_l < map[x1][y1].distance){
+					map[x1][y1].distance = u->map_node.distance + u->map_node.weight_l;
 
+					TREE *child = (TREE *)malloc(sizeof(TREE));
+					child->parent = u->tree_node;
+					child->map_node = map[x1][y1];
+					verticies = delete (verticies, temp);
+					verticies = insert(verticies, child->map_node, child);
+				}
+			}
+		}
+		if (u->map_node.weight_r != -1 && !isupper(map[x][y + 1].cell)){
+			//check to make sure node is in queue
+			in_queue = 0;
+			x1 = x;
+			y1 = y;
+			y1++;
+			temp = verticies;
 
+			while (temp != NULL){
+				if (temp->map_node.pos[0] == x1 && temp->map_node.pos[1] == y1){
+					in_queue = 1;
+					break;
+				}
+				temp = temp->next;
+			}
 
+			if (in_queue){
+				//perform edge relaxation
+				if (u->map_node.distance + u->map_node.weight_r < map[x1][y1].distance){
+					map[x1][y1].distance = u->map_node.distance + u->map_node.weight_r;
 
+					TREE *child = (TREE *)malloc(sizeof(TREE));
+					child->parent = u->tree_node;
+					child->map_node = map[x1][y1];
+					verticies = delete (verticies, temp);
+					verticies = insert(verticies, child->map_node, child);
+				}
+			}
+		}
+	}
 
+	while (path != NULL){
+		pop(&path);
+	}
 
+	while (verticies != NULL){
+		dequeue(&verticies);
+	}
+
+	return choice;
+}
