@@ -507,27 +507,27 @@ RESULT round(int row, int col, MAP_NODE map[row][col], int end[], int creatures[
 	RESULT is_end;
 
 	print_map(row, col, map);
-	printf("Player %c, please enter your move [u(p), d(own), l(eft), or r(ight)]: ", map[play_pos[0]][play_pos[1]].cell);
+	printf("Player %c, please enter your move [u(p), d(own), l(eft), or r(ight)]: ", map[player[0]][player[1]].cell);
 	scanf(" %c", &choice);
 
 	while (choice != 'u' && choice != 'd' && choice != 'l' && choice != 'r'){
 		printf("Please choose either (u, d, l, or r)\n");
-		printf("Player %c, please enter your move [u(p), d(own), l(eft), or r(ight)]: ", map[play_pos[0]][play_pos[1]].cell);
+		printf("Player %c, please enter your move [u(p), d(own), l(eft), or r(ight)]: ", map[player[0]][player[1]].cell);
 		scanf(" %c", &choice);
 	}
 
 	//let player move
-	is_end = move(row, col, map, play_pos, creatures, end, choice, num_creatures);
+	is_end = move(row, col, map, player, creatures, end, choice, num_creatures);
 	print_map(row, col, map);
 	if (is_end == PL_WON || is_end == PL_LOST)
 		return is_end;
 
-	set_weights(row, col, map, play_pos);
+	set_weights(row, col, map, player);
 
 	//let creatures move in alphabetical order
 	for (int i = 0; i < num_creatures; i++){
 
-		choice = shortest_path_dij(row, col, map, creatures[i], play_pos, '0');
+		choice = shortest_path_dij(row, col, map, creatures[i], player, '0');
 
 		//choice = shortest_path(row, col, map, creatures[i], '0');
 		is_end = move(row, col, map, creatures[i], creatures, end, choice, num_creatures);
