@@ -123,21 +123,17 @@ QUEUE *insert(QUEUE *queue, MAP_NODE map, TREE *node){
 	new_node->tree_node = node;
 	new_node->next = NULL;
 
-	if (queue == NULL)
-	{
+	if (queue == NULL){
 		queue = new_node;
 	}
-	else if (queue->map_node.distance > new_node->map_node.distance)
-	{
+	else if (queue->map_node.distance > new_node->map_node.distance){
 		new_node->next = queue;
 		queue = new_node;
 	}
-	else
-	{
+	else {
 		temp = queue;
 
-		while (temp->next != NULL && temp->next->map_node.distance <= new_node->map_node.distance)
-		{
+		while (temp->next != NULL && temp->next->map_node.distance <= new_node->map_node.distance){
 			temp = temp->next;
 		}
 
@@ -158,18 +154,15 @@ QUEUE *delete(QUEUE *queue, QUEUE *node){
 	QUEUE *temp = queue;
 	int dist = node->map_node.distance;
 
-	if (queue == NULL || node == NULL)
-	{
+	if (queue == NULL || node == NULL){
 		return queue;
 	}
-	else if (queue == node)
-	{
+	else if (queue == node){
 		queue = queue->next;
 		free(node);
 		node = NULL;
 	}
-	else
-	{
+	else {
 		//find and remove node from list
 		while (temp->next != NULL && temp->next != node)
 			temp = temp->next;
@@ -192,8 +185,7 @@ STACK *push(STACK *stack, int x, int y){
 	STACK *new_node = (STACK *)malloc(sizeof(STACK));
 	STACK *temp = stack;
 
-	if (new_node == NULL)
-	{
+	if (new_node == NULL){
 		printf("errror\n");
 	}
 
@@ -201,12 +193,10 @@ STACK *push(STACK *stack, int x, int y){
 	new_node->pos[0] = x;
 	new_node->pos[1] = y;
 
-	if (stack == NULL)
-	{
+	if (stack == NULL){
 		stack = new_node;
 	}
-	else
-	{
+	else {
 		new_node->next = stack;
 		stack = new_node;
 	}
@@ -242,8 +232,7 @@ QUEUE *enqueue(QUEUE *queue, MAP_NODE map_node, TREE *tree_node){
 	QUEUE *new_node = (QUEUE *)malloc(sizeof(QUEUE));
 	QUEUE *temp = NULL;
 
-	if (new_node == NULL)
-	{
+	if (new_node == NULL){
 		printf("Error allocating memory\n");
 	}
 
@@ -253,14 +242,11 @@ QUEUE *enqueue(QUEUE *queue, MAP_NODE map_node, TREE *tree_node){
 
 	temp = queue;
 
-	if (queue == NULL)
-	{
+	if (queue == NULL){
 		queue = new_node;
 	}
-	else
-	{
-		while (temp->next != NULL)
-		{
+	else {
+		while (temp->next != NULL){
 			temp = temp->next;
 		}
 		temp->next = new_node;
@@ -528,7 +514,7 @@ RESULT round(int row, int col, MAP_NODE map[row][col], int end[], int creatures[
 	for (int i = 0; i < num_creatures; i++){
 
 		choice = dijkstra_path(row, col, map, creatures[i], player, '0');
-		
+
 		is_end = move(row, col, map, creatures[i], creatures, end, choice, num_creatures);
 
 		if (is_end == PL_LOST){
