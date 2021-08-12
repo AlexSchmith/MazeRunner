@@ -547,7 +547,99 @@ RESULT round(int row, int col, MAP_NODE map[row][col], int end[], int creatures[
 	parameters: size of map row, size of map column, map , position of starting object, target of object to be found
 	returns: the directions the object needs to follow for the shortest path in char format (u, d, l, r)
 */
-STACK* shortest_path(int row, int col, MAP_NODE map[row][col], int object[], char target){}
+STACK* shortest_path(int row, int col, MAP_NODE map[row][col], int object[], char target){
+	int x = p[0]; //shortcuts for making indexes easier to understand
+	int y = p[1]; //shortcuts for making indexes easier to understand
+	int move[2];  //position of objects first move
+	char choice;
+	QUEUE *queue = NULL; //head of queue for breadth first search
+	QUEUE temp;
+	STACK *pos_stack = NULL; //queue to return the order from a to b
+	STACK *temp_pos;		 //temp to traverse stack
+
+	MAP_NODE temp_m = map[x][y]; //temp for creating map nodes
+
+	TREE *new_parent = (TREE *)malloc(sizeof(TREE));
+	new_parent->map_node = temp_m;
+
+	queue = enqueue(queue, temp_m, new_parent);
+
+	//for each map node check if it is target then get all neighbors and set neighbors parent
+	//to map node
+	while (queue != NULL){
+		temp = dequeue(&queue);
+
+		if (temp.map_node.label != 'v'){
+
+			x = temp.map_node.pos[0];
+			y = temp.map_node.pos[1];
+			//visit temp
+			//check if temp is target
+			if (temp.map_node.cell == target){
+				//stop and go up in tree and reverse the path from target to
+				while (temp.tree_node != NULL){
+					pos_stack = push(pos_stack, temp.tree_node->map_node.pos[0], temp.tree_node->map_node.pos[1]);
+					temp.tree_node = temp.tree_node->parent;
+				}
+
+				break;
+			}
+			//set temp to visited
+			map[x][y].label = 'v';
+
+			//visit up neighbor
+			if (map[x][y].weight_u != -1 && !isupper(map[x - 1][y].cell)){
+				temp_m = map[x - 1][y];
+
+				//create new tree and set parent to current node being visited
+				TREE *new_child = (TREE *)malloc(sizeof(TREE));
+				new_child->map_node = temp_m;
+				new_child->parent = temp.tree_node;
+				queue = enqueue(queue, temp_m, new_child);
+			}
+			//visit down neighbor
+			if (map[x][y].weight_d != -1 && !isupper(map[x + 1][y].cell)){
+				temp_m = map[x + 1][y];
+				//create new tree and set parent to current node being visited
+				TREE *new_child = (TREE *)malloc(sizeof(TREE));
+				new_child->map_node = temp_m;
+				new_child->parent = temp.tree_node;
+				queue = enqueue(queue, temp_m, new_child);
+			}
+			//check left
+			if (map[x][y].weight_l != -1 && !isupper(map[x][y - 1].cell)){
+				temp_m = map[x][y - 1];
+
+				//create new tree and set parent to current node being visited
+				TREE *new_child = (TREE *)malloc(sizeof(TREE));
+				new_child->map_node = temp_m;
+				new_child->parent = temp.tree_node;
+				queue = enqueue(queue, temp_m, new_child);
+			}
+			//check right
+			if (map[x][y].weight_r != -1 && !isupper(map[x][y + 1].cell)){
+				temp_m = map[x][y + 1];
+				//create new tree and set parent to current node being visited
+				TREE *new_child = (TREE *)malloc(sizeof(TREE));
+				new_child->map_node = temp_m;
+				new_child->parent = temp.tree_node;
+				queue = enqueue(queue, temp_m, new_child);
+			}
+		}
+	}
+
+	//set back all map nodes to unvisited
+	for (int i = 0; i < row; i++){
+		for (int k = 0; k < col; k++){
+			map[i][k].label = 'u';
+		}
+	}
+
+	while (queue != NULL)
+		dequeue(&queue);
+
+	return pos_stack;
+}
 
 /*
 	function: this function sets the specific weights for the map by finding the shortest path from the player to the end and then using dijkstra's algorithm
