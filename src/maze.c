@@ -527,9 +527,8 @@ RESULT round(int row, int col, MAP_NODE map[row][col], int end[], int creatures[
 	//let creatures move in alphabetical order
 	for (int i = 0; i < num_creatures; i++){
 
-		choice = shortest_path_dij(row, col, map, creatures[i], player, '0');
-
-		//choice = shortest_path(row, col, map, creatures[i], '0');
+		choice = dijkstra_path(row, col, map, creatures[i], player, '0');
+		
 		is_end = move(row, col, map, creatures[i], creatures, end, choice, num_creatures);
 
 		if (is_end == PL_LOST){
