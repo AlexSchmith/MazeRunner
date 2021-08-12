@@ -219,7 +219,19 @@ STACK *push(STACK *stack, int x, int y){
 	parameters: stack
 	returns: the position of the top stack and returns new stack indirectly
 */
-int *pop(STACK **stack){}
+int *pop(STACK **stack){
+	STACK *temp = *stack;
+	int value[2];
+
+	value[0] = (*stack)->pos[0];
+	value[1] = (*stack)->pos[1];
+
+	*stack = (*stack)->next;
+	free(temp);
+	temp = NULL;
+
+	return temp;
+}
 
 /*
 	function: a queue implementation used for the breadth first search and dijkstra's algorithm that contains bot the map node and a parent tree node
