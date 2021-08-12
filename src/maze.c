@@ -18,9 +18,9 @@
 #include <stdbool.h>
 
 #define MAX_CREATURES 10
-#define INFINITE 100
+#define INFINITE 100000
 
-typedef enum result 
+typedef enum result {
 	NOT_END,
 	PL_WON,
 	PL_LOST
@@ -68,7 +68,7 @@ typedef struct stack {
 QUEUE *insert(QUEUE *queue, MAP_NODE map, TREE *tree_node);
 QUEUE *enqueue(QUEUE *queue, MAP_NODE map_node, TREE *tree_node);
 QUEUE *update(QUEUE *queue, QUEUE *node);
-QUEUE dequeue(QUEUE **queue)
+QUEUE dequeue(QUEUE **queue);
 STACK *push(STACK *stack, int x, int y);
 int *pop(STACK **stack);
 //Game Functions
@@ -80,9 +80,30 @@ STACK* shortest_path(int row, int col, MAP_NODE map[row][col], int start_pos[], 
 void set_weights(int row, int col, MAP_NODE map[row][col], int player[]);
 
 int main(int argc, char *argv[]){
-	
+	int player[2];
+	int end[2];
+	int creatures[MAX_CREATURES][2];
+	int num_creatures = 0;
+	int col, row;
+	char cont = 'y';
 
+	FILE *graph = fopen(argv[1], "r");
+	RESULT is_end = NOT_END;
 
+	fscanf(graph, "%d %d\n", &row, &col);
+
+	MAP_NODE map[row][col];
+	create_map(graph, row, col, map, creatures, player, end, &num_creatures);
+
+	while (is_end == NOT_END)
+		is_end = round(row, col, map, end, creatures, player, num_creatures);
+
+	if (is_end != 0){
+		if (is_end == PL_WON)
+			printf("Player 0 beats the hungry creatures!\n");
+		else if (is_end == PL_LOST)
+			printf("One creature is not hungry anymore!\n");
+	}
 	return 0;
 }
 
@@ -94,7 +115,38 @@ int main(int argc, char *argv[]){
 	parameters: the head of the priority queue, a map node, and a tree node.
 	return: returns the head of the priority queue
 */
-QUEUE *insert(QUEUE *queue, MAP_NODE map, TREE *node){}
+QUEUE *insert(QUEUE *queue, MAP_NODE map, TREE *node){
+	QUEUE *new_node = (QUEUE *)malloc(sizeof(QUEUE));
+	QUEUE *temp = NULL;
+
+	new_node->map_node = map;
+	new_node->tree_node = node;
+	new_node->next = NULL;
+
+	if (queue == NULL)
+	{
+		queue = new_node;
+	}
+	else if (queue->map_node.distance > new_node->map_node.distance)
+	{
+		new_node->next = queue;
+		queue = new_node;
+	}
+	else
+	{
+		temp = queue;
+
+		while (temp->next != NULL && temp->next->map_node.distance <= new_node->map_node.distance)
+		{
+			temp = temp->next;
+		}
+
+		new_node->next = temp->next;
+		temp->next = new_node;
+	}
+
+	return queue;
+}
 
 /*
 	function: this is a function that finds a specific node and deletes  it from the priority queue
