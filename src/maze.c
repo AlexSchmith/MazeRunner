@@ -419,7 +419,83 @@ void print_map(int row, int col, MAP_NODE map[row][col]){
 	parameters:  map of characters, size of map row, size of map column, position of character to move, choice of movement
 	returns: returns the result of the move either player won, player lost, or not end
 */
-RESULT move(int row, int col, MAP_NODE map[row][col], int position[], int creatures[MAX_CREATURES][2], int end[], char choice, int num_creatures){}
+RESULT move(int row, int col, MAP_NODE map[row][col], int position[], int creatures[MAX_CREATURES][2], int end[], char choice, int num_creatures){
+	RESULT is_end = NOT_END;
+	int x = position[0];
+	int y = position[1];
+	int x1 = x;
+	int y1 = y;
+
+	char replacement_char = map[x][y].replacement;
+
+	//check to see if replacement is empty and end is the same position
+	//this would mean that all the creatures on the end have moved away
+	if (map[x][y].replacement == ' '){
+		if (x == end[0] && y == end[1])
+			replacement_char = '*';
+		else
+			replacement_char = map[x][y].replacement;
+	}
+	else {
+		replacement_char = map[x][y].replacement;
+		map[x][y].replacement = ' ';
+	}
+
+	//check to see if object is player or creature
+	if (map[x][y].cell == '#' || map[x][y].cell == '*' || map[x][y].cell == ' '){
+		printf("This is an immovable object\n");
+		return is_end;
+	}
+
+	//determines the position that needs to be checked
+	switch (choice){
+		case 'u':
+			if (map[x][y].weight_u != -1)
+				x1--;
+			break;
+		case 'd':
+			if (map[x][y].weight_d != -1)
+				x1++;
+			break;
+		case 'l':
+			if (map[x][y].weight_l != -1)
+				y1--;
+			break;
+		case 'r':
+			if (map[x][y].weight_r != -1)
+				y1++;
+			break;
+	}
+	//if the position has not changed then it cant move
+	if (x == x1 && y == y1)
+		return;
+
+	//update graphs
+	if (isupper(map[x1][y1].cell)){
+		if (map[x][y].cell == '0')
+			is_end = PL_LOST;
+		else
+			map[x1][y1].replacement = map[x][y].cell;
+		map[x][y].cell = replacement_char;
+	}
+	else {
+		if (map[x1][y1].cell == '*'){
+			if (map[x][y].cell == '0')
+				is_end = PL_WON;
+		}
+		else if (map[x1][y1].cell == '0'){
+			is_end = PL_LOST;
+		}
+
+		map[x1][y1].cell = map[x][y].cell;
+		map[x][y].cell = replacement_char;
+	}
+
+	position[0] = x1;
+	position[1] = y1;
+
+	return is_end;
+}
 
 /*
 	function: this is a function that plays one round where the player moves, then all the creatures move in alphabetical order
