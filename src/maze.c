@@ -188,7 +188,31 @@ QUEUE *delete(QUEUE *queue, QUEUE *node){
 	it will be used to reverse the direction of the coordinates for the shortest path algorithm
 	parameters: stack, x coordinate, y coordinate
 */
-STACK *push(STACK *stack, int x, int y){}
+STACK *push(STACK *stack, int x, int y){
+	STACK *new_node = (STACK *)malloc(sizeof(STACK));
+	STACK *temp = stack;
+
+	if (new_node == NULL)
+	{
+		printf("errror\n");
+	}
+
+	new_node->next = NULL;
+	new_node->pos[0] = x;
+	new_node->pos[1] = y;
+
+	if (stack == NULL)
+	{
+		stack = new_node;
+	}
+	else
+	{
+		new_node->next = stack;
+		stack = new_node;
+	}
+
+	return stack;
+}
 
 /*
 	function: this is a stack implementation that returns a pair of coordinates and removes it from the top of the stack
